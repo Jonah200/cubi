@@ -1,6 +1,10 @@
 import { api } from './api-client'
 import type { AuthResponse, LoginRequest, SignupRequest, User } from './models'
 
+export async function fetchCsrf(): Promise<void> {
+  await api.get('/auth/csrf/')
+}
+
 export async function login(data: LoginRequest): Promise<AuthResponse> {
   const res = await api.post<AuthResponse>('/auth/login/', data)
   return res.data
