@@ -25,7 +25,9 @@ SECRET_KEY = 'django-insecure-9qjkf+ou%avf(*1j#e4tiucwiy*80gw_i#byl^os)%4ku82+v6
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+
+CSRF_TRUSTED_ORIGINS = ['http://localhost:5173', 'http://localhost:8000']
 
 
 # Application definition
@@ -37,7 +39,25 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'cubi_web',
 ]
+
+AUTH_USER_MODEL = 'cubi_web.User'
+
+# MQTT
+MQTT_BROKER_HOST = 'localhost'
+MQTT_BROKER_PORT = 1883
+
+# Django REST Framework
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
