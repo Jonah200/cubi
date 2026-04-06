@@ -1,0 +1,19 @@
+#:kivy 1.9
+
+BoxLayout:
+    orientation: "vertical"
+    padding: 20
+    spacing: 20
+
+    Label:
+        text: app.display_text
+        font_size: 28
+	    text_size: root.width, None
+    	halign: "center"
+	    valign: "top"
+
+    Button:
+        text: "Press Me"
+        font_size: 24
+        size_hint_y: 0.3
+        on_press: app.change_text()
