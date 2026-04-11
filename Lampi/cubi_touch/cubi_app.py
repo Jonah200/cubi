@@ -46,7 +46,7 @@ class SolveScreen(Screen):
         if not self.running:
             self.running = True
             self.start_time = time.time()
-            Clock.set_interval(self.update_time, 0.01)
+            Clock.schedule_interval(self.update_time, 0.01)
         else:
             self.running = False
             Clock.unschedule(self.update_time)
@@ -60,7 +60,12 @@ class SolveScreen(Screen):
 
     def show_result(self, elapsed):
         scramble = self.manager.get_screen("start").scramble
-        content = Label(text=f"{scramble}\n\nTime: {elapsed:.2f}")
+        content = Label(
+            text=f"{scramble}\n\nTime: {elapsed:.2f}",
+            halign="center",
+            valign="middle",
+        )
+        content.bind(size=lambda lbl, _: setattr(lbl, 'text_size', lbl.size))
 
         popup = Popup(
             title="Result",
