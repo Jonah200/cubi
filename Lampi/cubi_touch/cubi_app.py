@@ -1,13 +1,15 @@
 import time
 
-import paho.mqtt.client as mqtt
 from kivy.app import App
 from kivy.properties import StringProperty, NumericProperty, BooleanProperty
 from kivy.clock import Clock
 from kivy.uix.screenmanager import ScreenManager, Screen
-from kivy.uix.popup import Popup
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.button import Button
 from kivy.uix.label import Label
+from kivy.uix.popup import Popup
 from cubi_touch.cubi_util import generate_scramble
+from cubi_service import CubiService
 
 class StartScreen(Screen):
     scramble = StringProperty("")
@@ -60,34 +62,54 @@ class SolveScreen(Screen):
 
     def show_result(self, elapsed):
         scramble = self.manager.get_screen("start").scramble
-        content = Label(
+
+        result_label = Label(
             text=f"{scramble}\n\nTime: {elapsed:.2f}",
             halign="center",
             valign="middle",
         )
-        content.bind(size=lambda lbl, _: setattr(lbl, 'text_size', lbl.size))
+        result_label.bind(size=lambda lbl, _: setattr(lbl, 'text_size', lbl.size))
 
-        popup = Popup(
-            title="Result",
-            content=content,
-            size_hint=(0.8,0.5)
-        )
-        
-        content.bind(on_touch_down=lambda *x: self.reset_app(popup))
+        save_btn = Button(text="Save", size_hint_y=0.3)
+        discard_btn = Button(text="Discard", size_hint_y=0.3)
+
+        btn_row = BoxLayout(orientation="horizontal", size_hint_y=0.3, spacing=10)
+        btn_row.add_widget(save_btn)
+        btn_row.add_widget(discard_btn)
+
+        content = BoxLayout(orientation="vertical", padding=10, spacing=10)
+        content.add_widget(result_label)
+        content.add_widget(btn_row)
+
+        popup = Popup(title="Result", content=content, size_hint=(0.8, 0.6))
+
+        save_btn.bind(on_press=lambda *_: self._on_save(popup, scramble, elapsed))
+        discard_btn.bind(on_press=lambda *_: self._on_discard(popup))
+
         popup.open()
 
-    def reset_app(self, popup):
+    def _on_save(self, popup, scramble, elapsed):
+        App.get_running_app().service.publish_solve(scramble, elapsed)
+        popup.dismiss()
+        self.time_text = "Tap to Start"
+        self.manager.current = "start"
+
+    def _on_discard(self, popup):
         popup.dismiss()
         self.time_text = "Tap to Start"
         self.manager.current = "start"
 
 class CubiApp(App):
     def build(self):
+        self.service = CubiService()
         sm = ScreenManager()
         sm.add_widget(StartScreen(name="start"))
         sm.add_widget(InspectionScreen(name="inspection"))
         sm.add_widget(SolveScreen(name="solve"))
         return sm
+
+    def on_stop(self):
+        self.service.stop()
 
 if __name__ == "__main__":
     CubiApp().run()
