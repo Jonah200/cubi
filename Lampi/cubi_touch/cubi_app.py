@@ -17,6 +17,9 @@ class StartScreen(Screen):
     def on_pre_enter(self):
         self.scramble = generate_scramble()
 
+    def rescramble(self):
+        self.scramble = generate_scramble()
+
     def go_to_inspection(self):
         self.manager.get_screen("inspection").start_timer()
         self.manager.current = "inspection"
@@ -81,7 +84,7 @@ class SolveScreen(Screen):
         content.add_widget(result_label)
         content.add_widget(btn_row)
 
-        popup = Popup(title="Result", content=content, size_hint=(0.8, 0.6))
+        popup = Popup(title="Result", content=content, size_hint=(0.8, 0.6), auto_dismiss=False)
 
         save_btn.bind(on_press=lambda *_: self._on_save(popup, scramble, elapsed))
         discard_btn.bind(on_press=lambda *_: self._on_discard(popup))

@@ -12,6 +12,11 @@
             size_hint_y: None
             height: self.texture_size[1]
 
+        Button: 
+            text: "Generate New Scramble"
+            size_hint_y: 0.2
+            on_press: root.rescramble()
+            
         Button:
             text: "Start Inspection"
             size_hint_y: 0.3
