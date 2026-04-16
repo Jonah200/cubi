@@ -105,11 +105,53 @@ class SolveScreen(Screen):
 class CubiApp(App):
     def build(self):
         self.service = CubiService()
+        self._association_popup = None
+
+        self.service.on_association_required = self._on_association_required
+        self.service.on_associated = self._on_associated
+        self.service.start()
+
         sm = ScreenManager()
         sm.add_widget(StartScreen(name="start"))
         sm.add_widget(InspectionScreen(name="inspection"))
         sm.add_widget(SolveScreen(name="solve"))
         return sm
+
+    # --- Association callbacks (may arrive from MQTT thread) ---
+
+    def _on_association_required(self, code):
+        # Schedule on main thread; capture code in default arg
+        Clock.schedule_once(lambda dt, c=code: self._show_association_popup(c))
+
+    def _on_associated(self, username):
+        Clock.schedule_once(lambda dt, u=username: self._dismiss_association_popup(u))
+
+    def _show_association_popup(self, code):
+        if self._association_popup is not None:
+            return  # already showing
+
+        short_code = code[:6]
+        content = Label(
+                text=f"Associate this device with you Cubi account\n{short_code}\nEnter this code on the web dashboard",
+                font_size=18,
+                halign="center"
+        )
+
+        content.bind(size=lambda lbl, _: setattr(lbl, 'text_size', lbl.size))
+
+        self._association_popup = Popup(
+            title="Device Not Associated",
+            content=content,
+            size_hint=(0.85, 0.55),
+            auto_dismiss=False,
+        )
+        self._association_popup.open()
+
+    def _dismiss_association_popup(self, username):
+        if self._association_popup is None:
+            return
+        self._association_popup.dismiss()
+        self._association_popup = None
 
     def on_stop(self):
         self.service.stop()
