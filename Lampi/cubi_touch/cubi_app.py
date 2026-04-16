@@ -120,10 +120,12 @@ class CubiApp(App):
 
     def _on_association_required(self, code):
         # Schedule on main thread; capture code in default arg
-        Clock.schedule_once(lambda dt, c=code: self._show_association_popup(c))
+        #Clock.schedule_once(lambda dt, c=code: self._show_association_popup(c))
+        pass
 
     def _on_associated(self, username):
-        Clock.schedule_once(lambda dt, u=username: self._dismiss_association_popup(u))
+        #Clock.schedule_once(lambda dt, u=username: self._dismiss_association_popup(u))
+        pass
 
     def _show_association_popup(self, code):
         if self._association_popup is not None:
