@@ -17,7 +17,7 @@ export default function DashboardPage() {
 
   return (
     <div className="grid h-screen grid-cols-[240px_1fr]">
-      <SolveSidebar solves={solves} />
+      <SolveSidebar solves={solves} user={user} />
       <main className="flex flex-col gap-8 overflow-y-auto p-8">
         <DeviceStatusBar />
         <WelcomeHeader username={user.username} />
