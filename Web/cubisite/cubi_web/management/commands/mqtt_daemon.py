@@ -34,11 +34,12 @@ class Command(BaseCommand):
         client.message_callback_add('$SYS/broker/connection/+/state',
                                          self._handle_device_connection)
         client.subscribe('$SYS/broker/connection/+/state')
-        self.client.message_callback_add('devices/+/cubi/solve',
+        client.message_callback_add('devices/+/cubi/solve',
                                          self._handle_solve)
-        client.subscribe('cubi/solve')
+        client.subscribe('devices/+/cubi/solve')
 
-    def _handle_solve(self, msg):
+    def _handle_solve(self, client, userdate, msg):
+        print("Solve message recieved: {}".format(msg), flush=True)
         try:
             data = json.loads(msg.payload.decode())
         except (json.JSONDecodeError, UnicodeDecodeError):
@@ -70,7 +71,7 @@ class Command(BaseCommand):
         )
         self.stdout.write(f'Saved {solve}')
 
-    def _handle_device_connection(self, client, msg):
+    def _handle_device_connection(self, client, userdata, msg):
         # Topic: $SYS/broker/connection/<device_id>/state
         if msg.payload == b'1':
             results = re.search(MQTT_BROKER_RE_PATTERN, msg.topic.lower())
