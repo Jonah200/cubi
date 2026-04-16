@@ -11,7 +11,7 @@ BROKER_PORT = 1883
 
 class CubiService:
     def __init__(self) -> None:
-        self.device_id = socket.gethostname()
+        self.device_id = "b827eb1aabd5"
 
         self._client = mqtt.Client(
             mqtt.CallbackAPIVersion.VERSION2,

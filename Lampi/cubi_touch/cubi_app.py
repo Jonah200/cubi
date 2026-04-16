@@ -37,23 +37,22 @@ class InspectionScreen(Screen):
             self.start_solve()
         
     def start_solve(self):
+        Clock.unschedule(self.countdown)
         self.manager.current = "solve"
+        self.time_left = 15
 
 class SolveScreen(Screen):
     time_text = StringProperty("0.0")
     running = False
-    ran = False
     start_time = 0
+
     def on_enter(self):
-        if self.ran:
-            return
         self.running = True
         self.start_time = time.time()
         Clock.schedule_interval(self.update_time, 0.01)
 
     def on_touch_down(self, touch):
         self.running = False
-        self.ran = True
         Clock.unschedule(self.update_time)
         elapsed = time.time() - self.start_time
         self.show_result(elapsed)
