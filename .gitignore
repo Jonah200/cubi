@@ -21,7 +21,6 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
 !Mobile/lampi_flutter/lib/
 lib64/
 parts/
