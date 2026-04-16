@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,7 +26,7 @@ SECRET_KEY = 'django-insecure-9qjkf+ou%avf(*1j#e4tiucwiy*80gw_i#byl^os)%4ku82+v6
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'ec2-54-162-167-99.compute-1.amazonaws.com']
 
 CSRF_TRUSTED_ORIGINS = ['http://localhost:5173', 'http://localhost:8000']
 
@@ -74,7 +75,7 @@ ROOT_URLCONF = 'cubisite.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR.parent / "frontend" / "dist"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -136,6 +137,13 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+STATIC_ROOT =  os.path.join(BASE_DIR, "static")
+
+STATICFILES_DIRS = [
+    BASE_DIR.parent / "frontend" / "dist"
+]
+
+DEFAULT_USER = "parked_device_user"
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
