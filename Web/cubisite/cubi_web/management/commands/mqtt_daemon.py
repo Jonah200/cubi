@@ -1,11 +1,12 @@
 import json
 import uuid
+from datetime import timedelta
 
 import paho.mqtt.client as mqtt
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
-from cubi_web.models import Device, User
+from cubi_web.models import Device, Solve, User
 
 
 class Command(BaseCommand):
@@ -29,8 +30,48 @@ class Command(BaseCommand):
     def _on_connect(self, client, userdata, flags, reason_code, properties):
         self.stdout.write(f'Connected to MQTT broker (rc={reason_code})')
         client.subscribe('$SYS/broker/connection/+/state')
+        client.subscribe('cubi/solve')
 
     def _on_message(self, client, userdata, msg):
+        if msg.topic == 'cubi/solve':
+            self._handle_solve(msg)
+            return
+
+        self._handle_device_connection(client, msg)
+
+    def _handle_solve(self, msg):
+        try:
+            data = json.loads(msg.payload.decode())
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            self.stderr.write('Invalid solve payload')
+            return
+
+        device_id = data.get('device_id')
+        scramble = data.get('scramble')
+        solve_time = data.get('solve_time')
+
+        if not all([device_id, scramble, solve_time is not None]):
+            self.stderr.write('Missing required fields in solve payload')
+            return
+
+        try:
+            device = Device.objects.get(device_id=device_id)
+        except Device.DoesNotExist:
+            self.stderr.write(f'Unknown device: {device_id}')
+            return
+
+        if device.owner == self.parked_user:
+            self.stderr.write(f'Device not associated: {device_id}')
+            return
+
+        solve = Solve.objects.create(
+            user=device.owner,
+            scramble=scramble,
+            solve_time=timedelta(seconds=float(solve_time)),
+        )
+        self.stdout.write(f'Saved {solve}')
+
+    def _handle_device_connection(self, client, msg):
         # Topic: $SYS/broker/connection/<device_id>/state
         parts = msg.topic.split('/')
         if len(parts) != 5:

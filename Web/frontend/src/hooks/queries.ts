@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { getMe, login, logout, signup } from '@/api/services'
 import type { LoginRequest, SignupRequest } from '@/api/models'
-import { queryKeys } from './queryKeys'
+import { queryKeys } from './query-keys'
 
 export function useMe() {
   return useQuery({
