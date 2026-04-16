@@ -40,16 +40,20 @@ class InspectionScreen(Screen):
         self.manager.current = "solve"
 
 class SolveScreen(Screen):
-    time_text = StringProperty("Tap to Start")
+    time_text = StringProperty("0.0")
     running = False
+    ran = False
     start_time = 0
     def on_enter(self):
+        if self.ran:
+            return
         self.running = True
         self.start_time = time.time()
         Clock.schedule_interval(self.update_time, 0.01)
 
     def on_touch_down(self, touch):
         self.running = False
+        self.ran = True
         Clock.unschedule(self.update_time)
         elapsed = time.time() - self.start_time
         self.show_result(elapsed)
@@ -90,7 +94,6 @@ class SolveScreen(Screen):
     def _on_save(self, popup, scramble, elapsed):
         App.get_running_app().service.publish_solve(scramble, elapsed)
         popup.dismiss()
-        self.time_text = "Tap to Start"
         self.manager.current = "start"
 
     def _on_discard(self, popup):
