@@ -22,7 +22,7 @@ class Device(models.Model):
 class Solve(models.Model):
     solve_no = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='solves')
-    scramble = models.IntegerField()
+    scramble = models.TextField()
     solve_time = models.DurationField()
     created_at = models.DateTimeField(auto_now_add=True)
 
