@@ -20,6 +20,7 @@ class CubiService:
         self._client.on_connect = self._on_connect
         self._client.on_message = self._on_message
 
+    def start(self) -> None:
         self._client.connect_async(BROKER_HOST, BROKER_PORT)
         self._client.loop_start()
 
@@ -43,7 +44,7 @@ class CubiService:
     on_associated = None
 
     def _on_connect(self, client, userdata, flags, reason_code, properties):
-        client.subscribe(f'cubi/{self.device_id}/associated')
+        client.subscribe('cubi/associated')
 
     def _on_message(self, client, userdata, msg):
         try:

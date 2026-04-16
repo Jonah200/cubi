@@ -109,6 +109,7 @@ class CubiApp(App):
 
         self.service.on_association_required = self._on_association_required
         self.service.on_associated = self._on_associated
+        self.service.start()
 
         sm = ScreenManager()
         sm.add_widget(StartScreen(name="start"))
