@@ -150,4 +150,6 @@ profile
 DerivedData
 .idea/
 
+# Claude
 CLAUDE.md
+.claude
