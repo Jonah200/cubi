@@ -1,19 +1,48 @@
 #:kivy 1.9
 
-BoxLayout:
-    orientation: "vertical"
-    padding: 20
-    spacing: 20
+<StartScreen>:
+    BoxLayout:
+        orientation: "vertical"
+        padding: 20
+        spacing: 20
 
-    Label:
-        text: app.display_text
-        font_size: 28
-	    text_size: root.width, None
-    	halign: "center"
-	    valign: "top"
+        Label:
+            text: root.scramble
+            text_size: self.width, None
+            size_hint_y: None
+            height: self.texture_size[1]
 
-    Button:
-        text: "Press Me"
-        font_size: 24
-        size_hint_y: 0.3
-        on_press: app.change_text()
+        Button: 
+            text: "Generate New Scramble"
+            size_hint_y: 0.2
+            on_press: root.rescramble()
+            
+        Button:
+            text: "Start Inspection"
+            size_hint_y: 0.3
+            on_press: root.go_to_inspection()
+
+
+<InspectionScreen>:
+    BoxLayout:
+        orientation: "vertical"
+        padding: 20
+        spacing: 20
+
+        Label:
+            text: str(root.time_left)
+            font_size: 48
+
+        Button:
+            text: "Start Solve"
+            opacity: 1 if root.show_button else 0
+            disabled: not root.show_button
+            size_hint_y: 0.3
+            on_press: root.start_solve()
+
+
+<SolveScreen>:
+    BoxLayout:
+        Label:
+            text: root.time_text
+            font_size: 48
