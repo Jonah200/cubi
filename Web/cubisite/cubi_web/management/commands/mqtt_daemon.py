@@ -23,7 +23,6 @@ class Command(BaseCommand):
 
         client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
         client.on_connect = self._on_connect
-        client.on_message = self._on_message
         client.user_data_set({'client': client})
 
         self.stdout.write(f'Connecting to MQTT broker at {settings.MQTT_BROKER_HOST}:{settings.MQTT_BROKER_PORT}')
@@ -32,15 +31,12 @@ class Command(BaseCommand):
 
     def _on_connect(self, client, userdata, flags, reason_code, properties):
         self.stdout.write(f'Connected to MQTT broker (rc={reason_code})')
+        client.message_callback_add('$SYS/broker/connection/+/state',
+                                         self._handle_device_connection)
         client.subscribe('$SYS/broker/connection/+/state')
+        self.client.message_callback_add('devices/+/cubi/solve',
+                                         self._handle_solve)
         client.subscribe('cubi/solve')
-
-    def _on_message(self, client, userdata, msg):
-        if msg.topic == 'cubi/solve':
-            self._handle_solve(msg)
-            return
-
-        self._handle_device_connection(client, msg)
 
     def _handle_solve(self, msg):
         try:
