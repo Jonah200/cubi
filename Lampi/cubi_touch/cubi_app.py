@@ -26,18 +26,15 @@ class StartScreen(Screen):
 
 class InspectionScreen(Screen):
     time_left = NumericProperty(15)
-    show_button = BooleanProperty(False)
 
     def start_timer(self):
         self.time_left = 15
-        self.show_button = False
         Clock.schedule_interval(self.countdown, 1)
 
     def countdown(self, dt):
         self.time_left -= 1
         if self.time_left <= 0:
-            self.show_button = True
-            return False
+            self.start_solve()
         
     def start_solve(self):
         self.manager.current = "solve"
@@ -46,17 +43,16 @@ class SolveScreen(Screen):
     time_text = StringProperty("Tap to Start")
     running = False
     start_time = 0
+    def on_enter(self):
+        self.running = True
+        self.start_time = time.time()
+        Clock.schedule_interval(self.update_time, 0.01)
 
     def on_touch_down(self, touch):
-        if not self.running:
-            self.running = True
-            self.start_time = time.time()
-            Clock.schedule_interval(self.update_time, 0.01)
-        else:
-            self.running = False
-            Clock.unschedule(self.update_time)
-            elapsed = time.time() - self.start_time
-            self.show_result(elapsed)
+        self.running = False
+        Clock.unschedule(self.update_time)
+        elapsed = time.time() - self.start_time
+        self.show_result(elapsed)
         return True
     
     def update_time(self, dt):
