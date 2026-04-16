@@ -1,8 +1,8 @@
 import { formatTime } from '@/lib/utils'
 
 type CurrentAveragesProps = {
-  ao5: number
-  ao10: number
+  ao5: number | null
+  ao10: number | null
 }
 
 function AverageCard({ label, value }: { label: string; value: string }) {
@@ -19,8 +19,8 @@ function AverageCard({ label, value }: { label: string; value: string }) {
 export default function CurrentAverages({ ao5, ao10 }: CurrentAveragesProps) {
   return (
     <div className="flex flex-col justify-start gap-6">
-      <AverageCard label="Average of 5" value={formatTime(ao5)} />
-      <AverageCard label="Average of 10" value={formatTime(ao10)} />
+      <AverageCard label="Average of 5" value={ao5 !== null ? formatTime(ao5) : '—'} />
+      <AverageCard label="Average of 10" value={ao10 !== null ? formatTime(ao10) : '—'} />
     </div>
   )
 }

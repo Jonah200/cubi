@@ -1,12 +1,4 @@
-export type DashboardStats = {
-  mostRecent: number
-  averageOf5: number
-  averageOf10: number
-  bestSingle: number
-  bestAo5: number
-  bestAo10: number
-  bestAo50: number
-}
+import type { DashboardStats } from '@/api/models'
 
 export const mockStats: DashboardStats = {
   mostRecent: 12.34,

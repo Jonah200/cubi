@@ -2,7 +2,20 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 
-from .models import Device, User
+from .models import Device, Solve, User
+
+
+class SolveSerializer(serializers.ModelSerializer):
+    solveNo = serializers.IntegerField(source='solve_no')
+    solveTime = serializers.SerializerMethodField()
+    createdAt = serializers.DateTimeField(source='created_at')
+
+    class Meta:
+        model = Solve
+        fields = ['solveNo', 'solveTime', 'createdAt', 'scramble']
+
+    def get_solveTime(self, obj):
+        return obj.solve_time.total_seconds()
 
 
 class SignupSerializer(serializers.Serializer):

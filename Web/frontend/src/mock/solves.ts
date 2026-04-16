@@ -1,9 +1,4 @@
-export type Solve = {
-  solveNo: number
-  scramble: string
-  solveTime: number
-  createdAt: string
-}
+import type { Solve } from '@/api/models'
 
 export const mockSolves: Solve[] = [
   { solveNo: 10, scramble: "R U R' U' R' F R2 U' R' U' R U R' F'", solveTime: 12.34, createdAt: '2026-04-16T10:30:00Z' },

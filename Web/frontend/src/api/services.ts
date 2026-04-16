@@ -1,5 +1,5 @@
 import { api } from './api-client'
-import type { AuthResponse, LoginRequest, SignupRequest, User } from './models'
+import type { AuthResponse, DashboardStats, LoginRequest, SignupRequest, Solve, User } from './models'
 
 export async function fetchCsrf(): Promise<void> {
   await api.get('/auth/csrf/')
@@ -21,5 +21,15 @@ export async function logout(): Promise<void> {
 
 export async function getMe(): Promise<User> {
   const res = await api.get<User>('/auth/me/')
+  return res.data
+}
+
+export async function getSolves(): Promise<Solve[]> {
+  const res = await api.get<Solve[]>('/solves/')
+  return res.data
+}
+
+export async function getStats(): Promise<DashboardStats> {
+  const res = await api.get<DashboardStats>('/stats/')
   return res.data
 }

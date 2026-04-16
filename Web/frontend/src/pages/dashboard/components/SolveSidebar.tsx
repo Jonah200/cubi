@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button'
-import type { Solve } from '@/mock/solves'
+import type { Solve } from '@/api/models'
 import SolveHistoryItem from './SolveHistoryItem'
 
 type SolveSidebarProps = {
