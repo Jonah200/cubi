@@ -131,23 +131,13 @@ class CubiApp(App):
             return  # already showing
 
         short_code = code[:6]
-        content = BoxLayout(orientation="vertical", padding=20, spacing=15)
-        content.add_widget(Label(
-            text="Associate this device\nwith your Cubi account:",
-            halign="center",
-            font_size=18,
-        ))
-        content.add_widget(Label(
-            text=short_code,
-            font_size=48,
-            bold=True,
-            halign="center",
-        ))
-        content.add_widget(Label(
-            text="Enter this code on the web dashboard.",
-            halign="center",
-            font_size=14,
-        ))
+        content = Label(
+                text=f"Associate this device with you Cubi account\n{short_code}\nEnter this code on the web dashboard",
+                font_size=18,
+                halign="center"
+        )
+
+        content.bind(size=lambda lbl, _: setattr(lbl, 'text_size', lbl.size))
 
         self._association_popup = Popup(
             title="Device Not Associated",
