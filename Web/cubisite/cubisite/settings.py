@@ -143,6 +143,7 @@ STATICFILES_DIRS = [
     BASE_DIR.parent / "frontend" / "dist"
 ]
 
+DEFAULT_USER = "parked_device_user"
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 

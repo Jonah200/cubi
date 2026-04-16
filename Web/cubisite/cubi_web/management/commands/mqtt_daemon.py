@@ -1,4 +1,5 @@
 import json
+import re
 import uuid
 from datetime import timedelta
 
@@ -8,6 +9,8 @@ from django.core.management.base import BaseCommand
 
 from cubi_web.models import Device, Solve, User
 
+MQTT_BROKER_RE_PATTERN: str = (r'\$sys\/broker\/connection\/'
+                               r'(?P<device_id>[0-9a-f]*)_cubi_broker/state')
 
 class Command(BaseCommand):
     help = 'Long-running MQTT daemon for device discovery and association'
@@ -73,48 +76,18 @@ class Command(BaseCommand):
 
     def _handle_device_connection(self, client, msg):
         # Topic: $SYS/broker/connection/<device_id>/state
-        parts = msg.topic.split('/')
-        if len(parts) != 5:
-            return
-
-        device_id = parts[3]
-        payload = msg.payload.decode().strip()
-
-        if payload != '1':
-            return
-
-        try:
-            device = Device.objects.get(device_id=device_id)
-        except Device.DoesNotExist:
-            device = None
-
-        if device is None:
-            # New device — create with association code
-            code = uuid.uuid4().hex[:6].upper()
-            device = Device.objects.create(
-                device_id=device_id,
-                owner=self.parked_user,
-                association_code=code,
-            )
-            self.stdout.write(f'New device discovered: {device_id}, code={code}')
-            client.publish(
-                f'cubi/{device_id}/associated',
-                payload=json.dumps({'code': code, 'associated': False}),
-                retain=True,
-            )
-        elif device.owner == self.parked_user:
-            # Device exists but still parked — re-publish existing code
-            self.stdout.write(f'Re-publishing code for parked device: {device_id}')
-            client.publish(
-                f'cubi/{device_id}/associated',
-                payload=json.dumps({'code': device.association_code, 'associated': False}),
-                retain=True,
-            )
-        else:
-            # Device already associated
-            self.stdout.write(f'Device already associated: {device_id}')
-            client.publish(
-                f'cubi/{device_id}/associated',
-                payload=json.dumps({'associated': True}),
-                retain=True,
-            )
+        if msg.payload == b'1':
+            results = re.search(MQTT_BROKER_RE_PATTERN, msg.topic.lower())
+            if results is None:
+                return 
+            device_id = results.group('device_id')
+            try:
+                device = Device.objects.get(device_id=device_id)
+                print("Found {}".format(device))
+            except Device.DoesNotExist:
+                new_device = Device(device_id=device_id)
+                uname = settings.DEFAULT_USER
+                new_device.owner = User.objects.get(username=uname)
+                new_device.save()
+                print("Created {}".format(new_device))
+                new_device.publish_unassociated_message()
