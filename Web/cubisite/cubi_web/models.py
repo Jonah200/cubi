@@ -30,7 +30,7 @@ class Device(models.Model):
         assoc_msg['associated'] = False
         assoc_msg['code'] = self.association_code
         paho.mqtt.publish.single(
-            self._generate_device_association_topic,
+            self._generate_device_association_topic(),
             json.dumps(assoc_msg),
             qos=2,
             retain=True,
@@ -45,7 +45,7 @@ class Device(models.Model):
         assoc_msg['associated'] = True
         assoc_msg['username'] = self.owner.username
         paho.mqtt.publish.single(
-            self._generate_device_association_topic,
+            self._generate_device_association_topic(),
             json.dumps(assoc_msg),
             qos=2,
             retain=True,
