@@ -36,9 +36,26 @@ class CubiService:
         self._client.loop_stop()
         self._client.disconnect()
 
+    # Callbacks set by the app layer.
+    # on_association_required(code: str) — device is unassociated; code is the full UUID
+    # on_associated(username: str)       — device has been claimed by username
+    on_association_required = None
+    on_associated = None
+
     def _on_connect(self, client, userdata, flags, reason_code, properties):
         client.subscribe(f'cubi/{self.device_id}/associated')
 
     def _on_message(self, client, userdata, msg):
-        # Association handling to be integrated later
-        pass
+        try:
+            payload = json.loads(msg.payload.decode('utf-8'))
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            return
+
+        if payload.get('associated') is False:
+            code = payload.get('code', '')
+            if self.on_association_required:
+                self.on_association_required(code)
+        elif payload.get('associated') is True:
+            username = payload.get('username', '')
+            if self.on_associated:
+                self.on_associated(username)

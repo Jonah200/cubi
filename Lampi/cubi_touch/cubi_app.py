@@ -105,11 +105,62 @@ class SolveScreen(Screen):
 class CubiApp(App):
     def build(self):
         self.service = CubiService()
+        self._association_popup = None
+
+        self.service.on_association_required = self._on_association_required
+        self.service.on_associated = self._on_associated
+
         sm = ScreenManager()
         sm.add_widget(StartScreen(name="start"))
         sm.add_widget(InspectionScreen(name="inspection"))
         sm.add_widget(SolveScreen(name="solve"))
         return sm
+
+    # --- Association callbacks (may arrive from MQTT thread) ---
+
+    def _on_association_required(self, code):
+        # Schedule on main thread; capture code in default arg
+        Clock.schedule_once(lambda dt, c=code: self._show_association_popup(c))
+
+    def _on_associated(self, username):
+        Clock.schedule_once(lambda dt, u=username: self._dismiss_association_popup(u))
+
+    def _show_association_popup(self, code):
+        if self._association_popup is not None:
+            return  # already showing
+
+        short_code = code[:6]
+        content = BoxLayout(orientation="vertical", padding=20, spacing=15)
+        content.add_widget(Label(
+            text="Associate this device\nwith your Cubi account:",
+            halign="center",
+            font_size=18,
+        ))
+        content.add_widget(Label(
+            text=short_code,
+            font_size=48,
+            bold=True,
+            halign="center",
+        ))
+        content.add_widget(Label(
+            text="Enter this code on the web dashboard.",
+            halign="center",
+            font_size=14,
+        ))
+
+        self._association_popup = Popup(
+            title="Device Not Associated",
+            content=content,
+            size_hint=(0.85, 0.55),
+            auto_dismiss=False,
+        )
+        self._association_popup.open()
+
+    def _dismiss_association_popup(self, username):
+        if self._association_popup is None:
+            return
+        self._association_popup.dismiss()
+        self._association_popup = None
 
     def on_stop(self):
         self.service.stop()
