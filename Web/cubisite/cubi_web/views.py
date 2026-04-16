@@ -12,6 +12,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.renderers import BaseRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -151,8 +152,17 @@ class StatsView(APIView):
         })
 
 
+class ServerSentEventRenderer(BaseRenderer):
+    media_type = 'text/event-stream'
+    format = 'txt'
+
+    def render(self, data, accepted_media_type=None, renderer_context=None):
+        return data
+
+
 class SolvesStreamView(APIView):
     permission_classes = [IsAuthenticated]
+    renderer_classes = [ServerSentEventRenderer]
 
     def get(self, request):
         user = request.user
