@@ -1,6 +1,13 @@
+import uuid
+
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+import paho.mqtt.publish
+import json
 
+
+def generate_association_code() -> str:
+    return uuid.uuid4().hex
 
 class User(AbstractUser):
     role = models.CharField(max_length=32, default='user')
@@ -12,8 +19,39 @@ class Device(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='devices')
     device_name = models.CharField(max_length=255, blank=True, default='')
     association_code = models.CharField(
-        max_length=32, unique=True, null=True, blank=True,
+        max_length=32, unique=True, default=generate_association_code,
     )
+
+    def _generate_device_association_topic(self) -> str:
+        return 'devices/{}/cubi/associated'.format(self.device_id)
+
+    def publish_unassociated_message(self) -> None:
+        assoc_msg = {}
+        assoc_msg['associated'] = False
+        assoc_msg['code'] = self.association_code
+        paho.mqtt.publish.single(
+            self._generate_device_association_topic,
+            json.dumps(assoc_msg),
+            qos=2,
+            retain=True,
+            hostname="localhost",
+            port=1883
+        )
+
+    def associate_and_publish_associated_msg(self, user: User) -> None:
+        self.owner = user
+        self.save()
+        assoc_msg = {}
+        assoc_msg['associated'] = True
+        assoc_msg['username'] = self.owner.username
+        paho.mqtt.publish.single(
+            self._generate_device_association_topic,
+            json.dumps(assoc_msg),
+            qos=2,
+            retain=True,
+            hostname="localhost",
+            port=1883
+        )
 
     def __str__(self):
         return self.device_id

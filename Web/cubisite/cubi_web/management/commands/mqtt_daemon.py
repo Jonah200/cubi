@@ -86,35 +86,9 @@ class Command(BaseCommand):
         try:
             device = Device.objects.get(device_id=device_id)
         except Device.DoesNotExist:
-            device = None
-
-        if device is None:
-            # New device — create with association code
-            code = uuid.uuid4().hex[:6].upper()
-            device = Device.objects.create(
-                device_id=device_id,
-                owner=self.parked_user,
-                association_code=code,
-            )
-            self.stdout.write(f'New device discovered: {device_id}, code={code}')
-            client.publish(
-                f'cubi/{device_id}/associated',
-                payload=json.dumps({'code': code, 'associated': False}),
-                retain=True,
-            )
-        elif device.owner == self.parked_user:
-            # Device exists but still parked — re-publish existing code
-            self.stdout.write(f'Re-publishing code for parked device: {device_id}')
-            client.publish(
-                f'cubi/{device_id}/associated',
-                payload=json.dumps({'code': device.association_code, 'associated': False}),
-                retain=True,
-            )
-        else:
-            # Device already associated
-            self.stdout.write(f'Device already associated: {device_id}')
-            client.publish(
-                f'cubi/{device_id}/associated',
-                payload=json.dumps({'associated': True}),
-                retain=True,
-            )
+            new_device = Device(device_id=device_id)
+            uname = settings.DEFAULT_USER
+            new_device.owner = User.objects.get(username=uname)
+            new_device.save()
+            print("Created {}".format(new_device))
+            new_device.publish_unassociated_message()
