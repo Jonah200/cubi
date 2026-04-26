@@ -3,7 +3,7 @@ import time
 from kivy.app import App
 from kivy.properties import StringProperty, NumericProperty, BooleanProperty
 from kivy.clock import Clock
-from kivy.uix.screenmanager import ScreenManager, Screen
+from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.label import Label
@@ -26,6 +26,7 @@ class StartScreen(Screen):
 
 class InspectionScreen(Screen):
     time_left = NumericProperty(15)
+    ready_set_go = StringProperty("")
 
     def start_timer(self):
         self.time_left = 15
@@ -33,13 +34,21 @@ class InspectionScreen(Screen):
 
     def countdown(self, dt):
         self.time_left -= 1
+        if self.time_left == 2:
+            self.ready_set_go = "READY\n"
+        if self.time_left == 1:
+            self.ready_set_go += "SET\n"
         if self.time_left <= 0:
             self.start_solve()
         
+    def on_touch_down(self, touch):
+        self.start_solve()
+
     def start_solve(self):
         Clock.unschedule(self.countdown)
         self.manager.current = "solve"
         self.time_left = 15
+        self.ready_set_go = ""
 
 class SolveScreen(Screen):
     time_text = StringProperty("0.0")
@@ -72,8 +81,8 @@ class SolveScreen(Screen):
         )
         result_label.bind(size=lambda lbl, _: setattr(lbl, 'text_size', lbl.size))
 
-        save_btn = Button(text="Save", size_hint_y=0.3)
-        discard_btn = Button(text="Discard", size_hint_y=0.3)
+        save_btn = Button(text="Save", size_hint_y=1)
+        discard_btn = Button(text="Discard", size_hint_y=1)
 
         btn_row = BoxLayout(orientation="horizontal", size_hint_y=0.3, spacing=10)
         btn_row.add_widget(save_btn)
@@ -83,7 +92,7 @@ class SolveScreen(Screen):
         content.add_widget(result_label)
         content.add_widget(btn_row)
 
-        popup = Popup(title="Result", content=content, size_hint=(0.8, 0.6), auto_dismiss=False)
+        popup = Popup(title="Result", content=content, size_hint=(0.9, 0.8), auto_dismiss=False)
 
         save_btn.bind(on_press=lambda *_: self._on_save(popup, scramble, elapsed))
         discard_btn.bind(on_press=lambda *_: self._on_discard(popup))
@@ -97,8 +106,10 @@ class SolveScreen(Screen):
 
     def _on_discard(self, popup):
         popup.dismiss()
-        self.time_text = "Tap to Start"
         self.manager.current = "start"
+
+    def on_leave(self):
+        self.time_text = "0.0"
 
 class CubiApp(App):
     def build(self):
@@ -109,7 +120,7 @@ class CubiApp(App):
         self.service.on_associated = self._on_associated
         self.service.start()
 
-        sm = ScreenManager()
+        sm = ScreenManager(transition=NoTransition())
         sm.add_widget(StartScreen(name="start"))
         sm.add_widget(InspectionScreen(name="inspection"))
         sm.add_widget(SolveScreen(name="solve"))

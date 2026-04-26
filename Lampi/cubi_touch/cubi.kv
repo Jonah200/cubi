@@ -28,14 +28,22 @@
         orientation: "vertical"
         padding: 20
         spacing: 20
-
         Label:
             text: str(root.time_left)
             font_size: 48
+        Label:
+            text: root.ready_set_go
+            halign: 'center'
+            font_size: 40
 
 
 <SolveScreen>:
     BoxLayout:
+        orientation: 'vertical'
+        Label:
+            text: "SOLVE!"
+            halign: 'center'
+            font_size: 40
         Label:
             text: root.time_text
             font_size: 48
