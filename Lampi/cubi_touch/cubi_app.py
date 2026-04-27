@@ -1,15 +1,55 @@
 import time
+from typing import Dict, List
 
 from kivy.app import App
 from kivy.properties import StringProperty, NumericProperty, BooleanProperty
 from kivy.clock import Clock
 from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.gridlayout import GridLayout
 from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.popup import Popup
+from kivy.uix.widget import Widget
+from kivy.graphics import Color, Rectangle
 from cubi_touch.cubi_util import generate_scramble, generate_scramble_vis
 from cubi_service import CubiService
+
+COLOR_MAP = {"y": (1,1,0,1),
+             "g": (0,0.87,0,1),
+             "w": (1,1,1,1),
+             "o": (1,0.67,0,1),
+             "r": (1,0,0,1),
+             "b": (0,0,1,1)
+             }
+
+class ColoredBox(Widget):
+    def __init__(self, r, g, b, a=1, **kwargs):
+        super(ColoredBox, self).__init__(**kwargs)
+        with self.canvas:
+            Color(r, g ,b, a)
+            self.rect = Rectangle(pos=self.pos, size=self.size)
+
+        # Update rectangle when widget moves/resizes
+        self.bind(pos=self.update_rect, size=self.update_rect)
+
+    def update_rect(self, *args):
+        self.rect.pos = self.pos
+        self.rect.size = self.size
+
+class Face(Widget):
+    def __init__(self, arr, **kwargs):
+        super(Face, self).__init__(**kwargs)
+        self.layout = GridLayout(cols=3,rows=3,spacing=[1])
+        for row in arr:
+            for color in row:
+                self.layout.add_widget(ColoredBox(*COLOR_MAP[color]))
+        self.add_widget(self.layout)
+        self.bind(pos=self.update_layout, size=self.update_layout)
+
+    def update_layout(self, *args):
+        self.layout.pos = self.pos
+        self.layout.size = self.size
 
 class StartScreen(Screen):
     scramble = StringProperty("")
@@ -30,9 +70,25 @@ class StartScreen(Screen):
 
 class VisScreen(Screen):
     scramble = StringProperty("")
+    scramble_arrs: Dict[str, List[List[str]]] = {}
 
     def set_scramble(self, scramble: str):
         self.scramble = scramble
+        self.scramble_arrs = generate_scramble_vis(scramble)
+
+    def on_enter(self):
+        self.ids.vis_grid.add_widget(Widget())
+        self.ids.vis_grid.add_widget(Face(self.scramble_arrs['top']))
+        self.ids.vis_grid.add_widget(Widget())
+        self.ids.vis_grid.add_widget(Widget())
+        self.ids.vis_grid.add_widget(Face(self.scramble_arrs['left']))
+        self.ids.vis_grid.add_widget(Face(self.scramble_arrs['front']))
+        self.ids.vis_grid.add_widget(Face(self.scramble_arrs['right']))
+        self.ids.vis_grid.add_widget(Face(self.scramble_arrs['back']))
+        self.ids.vis_grid.add_widget(Widget())
+        self.ids.vis_grid.add_widget(Face(self.scramble_arrs['bottom']))
+        self.ids.vis_grid.add_widget(Widget())
+        self.ids.vis_grid.add_widget(Widget())
 
 class InspectionScreen(Screen):
     time_left = NumericProperty(15)
@@ -132,6 +188,7 @@ class CubiApp(App):
 
         sm = ScreenManager(transition=NoTransition())
         sm.add_widget(StartScreen(name="start"))
+        sm.add_widget(VisScreen(name="visualization"))
         sm.add_widget(InspectionScreen(name="inspection"))
         sm.add_widget(SolveScreen(name="solve"))
         return sm

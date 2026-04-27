@@ -155,9 +155,8 @@ def generate_scramble_vis(scramble: str):
         {filler} {bottom[2]} {filler} {filler}
         """
         print(string)
-    print_2d()
 
-    return top, left, front, right, back, bottom
+    return {"top": top, "bottom": bottom, "front": front, "back": back, "left": left, "right": right}
 
 if __name__ == "__main__":
     scramble = generate_scramble()
