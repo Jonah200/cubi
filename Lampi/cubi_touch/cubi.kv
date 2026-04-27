@@ -34,7 +34,13 @@
             text: root.scramble
             text_size: self.width, None
             halign: "center"
+            size_hint_y: 0.2
+        Button:
+            size_hint_y: 0.3
+            text: "Start Inspection"
+            on_press: root.go_to_inspection()
         GridLayout:
+            size_hint_y: 0.5
             id: vis_grid
             spacing: [4]
             cols: 4

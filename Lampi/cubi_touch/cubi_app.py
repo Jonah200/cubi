@@ -77,6 +77,14 @@ class VisScreen(Screen):
         self.scramble_arrs = generate_scramble_vis(scramble)
 
     def on_enter(self):
+        self.layout_grid()
+
+    def go_to_inspection(self):
+        self.manager.get_screen("inspection").start_timer()
+        self.manager.current = "inspection"
+
+    def layout_grid(self):
+        self.ids.vis_grid.clear_widgets()
         self.ids.vis_grid.add_widget(Widget())
         self.ids.vis_grid.add_widget(Face(self.scramble_arrs['top']))
         self.ids.vis_grid.add_widget(Widget())
