@@ -8,7 +8,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.popup import Popup
-from cubi_touch.cubi_util import generate_scramble
+from cubi_touch.cubi_util import generate_scramble, generate_scramble_vis
 from cubi_service import CubiService
 
 class StartScreen(Screen):
@@ -23,6 +23,16 @@ class StartScreen(Screen):
     def go_to_inspection(self):
         self.manager.get_screen("inspection").start_timer()
         self.manager.current = "inspection"
+
+    def go_to_vis(self):
+        self.manager.get_screen("visualization").set_scramble(self.scramble)
+        self.manager.current = "visualization"
+
+class VisScreen(Screen):
+    scramble = StringProperty("")
+
+    def set_scramble(self, scramble: str):
+        self.scramble = scramble
 
 class InspectionScreen(Screen):
     time_left = NumericProperty(15)

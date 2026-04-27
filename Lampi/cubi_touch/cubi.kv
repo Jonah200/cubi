@@ -16,12 +16,23 @@
             text: "Generate New Scramble"
             size_hint_y: 0.2
             on_press: root.rescramble()
+
+        Button:
+            text: "View Scramble"
+            size_hint_y: 0.2
+            on_press: root.go_to_vis()
             
         Button:
             text: "Start Inspection"
             size_hint_y: 0.3
             on_press: root.go_to_inspection()
 
+<VisScreen>:
+    BoxLayout:
+        orientation: "vertical"
+        Label:
+            text: root.scramble
+            text_size: self.width, None
 
 <InspectionScreen>:
     BoxLayout:
