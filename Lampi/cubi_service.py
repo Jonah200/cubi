@@ -5,13 +5,11 @@ import time
 
 import paho.mqtt.client as mqtt
 
-BROKER_HOST = 'localhost'
-BROKER_PORT = 1883
-
+from cubi_common import *
 
 class CubiService:
     def __init__(self) -> None:
-        self.device_id = "b827eb1aabd5"
+        self.device_id = get_device_id()
 
         self._client = mqtt.Client(
             mqtt.CallbackAPIVersion.VERSION2,
