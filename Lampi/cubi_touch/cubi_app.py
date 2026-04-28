@@ -14,14 +14,7 @@ from kivy.uix.widget import Widget
 from kivy.graphics import Color, Rectangle
 from cubi_touch.cubi_util import generate_scramble, generate_scramble_vis
 from cubi_service import CubiService
-
-COLOR_MAP = {"y": (1,1,0,1),
-             "g": (0,0.87,0,1),
-             "w": (1,1,1,1),
-             "o": (1,0.67,0,1),
-             "r": (1,0,0,1),
-             "b": (0,0,1,1)
-             }
+from cubi_common import *
 
 class ColoredBox(Widget):
     def __init__(self, r, g, b, a=1, **kwargs):
@@ -52,29 +45,28 @@ class Face(Widget):
         self.layout.size = self.size
 
 class StartScreen(Screen):
-    scramble = StringProperty("")
 
-    def on_pre_enter(self):
-        self.scramble = generate_scramble()
+    def on_enter(self):
+        scramble = App.get_running_app().scramble
+        if scramble == "":
+            App.get_running_app().scramble = generate_scramble()
 
     def rescramble(self):
-        self.scramble = generate_scramble()
+        App.get_running_app().scramble = generate_scramble()
 
     def go_to_inspection(self):
         self.manager.get_screen("inspection").start_timer()
         self.manager.current = "inspection"
 
     def go_to_vis(self):
-        self.manager.get_screen("visualization").set_scramble(self.scramble)
+        self.manager.get_screen("visualization").compute_scramble()
         self.manager.current = "visualization"
 
 class VisScreen(Screen):
-    scramble = StringProperty("")
     scramble_arrs: Dict[str, List[List[str]]] = {}
 
-    def set_scramble(self, scramble: str):
-        self.scramble = scramble
-        self.scramble_arrs = generate_scramble_vis(scramble)
+    def compute_scramble(self):
+        self.scramble_arrs = generate_scramble_vis(App.get_running_app().scramble)
 
     def on_enter(self):
         self.layout_grid()
@@ -82,6 +74,11 @@ class VisScreen(Screen):
     def go_to_inspection(self):
         self.manager.get_screen("inspection").start_timer()
         self.manager.current = "inspection"
+
+    def rescramble(self):
+        App.get_running_app().scramble = generate_scramble()
+        self.compute_scramble()
+        self.layout_grid()
 
     def layout_grid(self):
         self.ids.vis_grid.clear_widgets()
@@ -146,7 +143,7 @@ class SolveScreen(Screen):
         self.time_text = f"{elapsed:.2f}"
 
     def show_result(self, elapsed):
-        scramble = self.manager.get_screen("start").scramble
+        scramble = App.get_running_app().scramble
 
         result_label = Label(
             text=f"{scramble}\n\nTime: {elapsed:.2f}",
@@ -186,6 +183,8 @@ class SolveScreen(Screen):
         self.time_text = "0.0"
 
 class CubiApp(App):
+    scramble = StringProperty("")
+
     def build(self):
         self.service = CubiService()
         self._association_popup = None

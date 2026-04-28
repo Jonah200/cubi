@@ -4,13 +4,14 @@
     BoxLayout:
         orientation: "vertical"
         padding: 20
-        spacing: 20
+        spacing: 10
 
         Label:
-            text: root.scramble
+            text: app.scramble
             text_size: self.width, None
             size_hint_y: None
             height: self.texture_size[1]
+            halign: 'center'
 
         Button: 
             text: "Generate New Scramble"
@@ -31,12 +32,16 @@
     BoxLayout:
         orientation: "vertical"
         Label:
-            text: root.scramble
+            text: app.scramble
             text_size: self.width, None
             halign: "center"
             size_hint_y: 0.2
         Button:
-            size_hint_y: 0.3
+            size_hint_y: 0.15
+            text: "Generate New Scramble"
+            on_press: root.rescramble()
+        Button:
+            size_hint_y: 0.15
             text: "Start Inspection"
             on_press: root.go_to_inspection()
         GridLayout:
