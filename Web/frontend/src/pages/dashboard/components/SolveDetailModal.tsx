@@ -16,7 +16,7 @@ export default function SolveDetailModal({ solve, open, onOpenChange }: SolveDet
       <div className="space-y-8">
         <div>
           <span className="text-lg text-muted-foreground">Time</span>
-          <p className="font-heading text-7xl font-bold">{formatTime(solve.solveTime)}</p>
+          <p className="font-heading text-7xl">{formatTime(solve.solveTime)}</p>
         </div>
         <div>
           <span className="text-lg text-muted-foreground">Scramble</span>

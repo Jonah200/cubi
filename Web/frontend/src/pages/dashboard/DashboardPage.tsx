@@ -20,7 +20,7 @@ export default function DashboardPage() {
       <SolveSidebar solves={solves} user={user} />
       <main className="flex flex-col gap-8 overflow-y-auto p-8">
         <DeviceStatusBar />
-        <WelcomeHeader username={user.username} />
+        <WelcomeHeader firstName={user.firstName} />
         <div className="grid max-w-[80%] grid-cols-2 gap-x-4 gap-y-8">
           <MostRecentSolve time={stats?.mostRecent ?? null} />
           <CurrentAverages ao5={stats?.averageOf5 ?? null} ao10={stats?.averageOf10 ?? null} />

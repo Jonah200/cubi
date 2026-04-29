@@ -11,7 +11,13 @@ export async function login(data: LoginRequest): Promise<AuthResponse> {
 }
 
 export async function signup(data: SignupRequest): Promise<AuthResponse> {
-  const res = await api.post<AuthResponse>('/auth/signup/', data)
+  const res = await api.post<AuthResponse>('/auth/signup/', {
+    username: data.username,
+    first_name: data.firstName,
+    last_name: data.lastName,
+    email: data.email,
+    password: data.password,
+  })
   return res.data
 }
 

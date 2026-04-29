@@ -8,6 +8,7 @@
 
 @theme inline {
     --font-heading: Chakra Petch, ui-sans-serif, sans-serif, system-ui;
+    --font-label: "Manrope Variable", ui-sans-serif, sans-serif, system-ui;
     --font-sans: "Manrope Variable", ui-sans-serif, sans-serif, system-ui;
     --color-sidebar-ring: var(--sidebar-ring);
     --color-sidebar-border: var(--sidebar-border);
