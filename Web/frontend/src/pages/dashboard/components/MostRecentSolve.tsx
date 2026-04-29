@@ -7,8 +7,8 @@ type MostRecentSolveProps = {
 export default function MostRecentSolve({ time }: MostRecentSolveProps) {
   return (
     <div className="flex flex-col">
-      <span className="text-9xl font-bold tabular-nums">{time !== null ? formatTime(time) : '—'}</span>
-      <span className="text-base font-semibold uppercase tracking-wide text-muted-foreground">
+      <span className="font-heading text-9xl tabular-nums">{time !== null ? formatTime(time) : '—'}</span>
+      <span className="text-xl font-semibold uppercase tracking-wide text-muted-foreground">
         Most Recent
       </span>
     </div>

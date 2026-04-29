@@ -8,8 +8,8 @@ type CurrentAveragesProps = {
 function AverageCard({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex flex-col px-4">
-      <span className="text-6xl font-bold tabular-nums">{value}</span>
-      <span className="text-base font-semibold uppercase tracking-wide text-muted-foreground">
+      <span className="font-heading text-7xl tabular-nums">{value}</span>
+      <span className="text-xl font-semibold uppercase tracking-wide text-muted-foreground">
         {label}
       </span>
     </div>
@@ -19,8 +19,8 @@ function AverageCard({ label, value }: { label: string; value: string }) {
 export default function CurrentAverages({ ao5, ao10 }: CurrentAveragesProps) {
   return (
     <div className="flex flex-col justify-start gap-6">
-      <AverageCard label="Average of 5" value={ao5 !== null ? formatTime(ao5) : '—'} />
-      <AverageCard label="Average of 10" value={ao10 !== null ? formatTime(ao10) : '—'} />
+      <AverageCard label="Current Average of 5" value={ao5 !== null ? formatTime(ao5) : '—'} />
+      <AverageCard label="Current Average of 10" value={ao10 !== null ? formatTime(ao10) : '—'} />
     </div>
   )
 }
