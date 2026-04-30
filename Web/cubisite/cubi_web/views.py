@@ -41,6 +41,8 @@ class SignupView(APIView):
         serializer.is_valid(raise_exception=True)
         user = User.objects.create_user(
             username=serializer.validated_data['username'],
+            first_name=serializer.validated_data['first_name'],
+            last_name=serializer.validated_data['last_name'],
             email=serializer.validated_data.get('email', ''),
             password=serializer.validated_data['password'],
         )
@@ -77,6 +79,8 @@ class MeView(APIView):
         return Response({
             'id': request.user.id,
             'username': request.user.username,
+            'firstName': request.user.first_name,
+            'lastName': request.user.last_name,
             'email': request.user.email,
         })
 
@@ -89,18 +93,7 @@ class AssociateDeviceView(APIView):
         serializer.is_valid(raise_exception=True)
 
         device = serializer._device
-        device.owner = request.user
-        device.association_code = None
-        device.save()
-
-        mqtt_publish.single(
-            topic=f'cubi/{device.device_id}/associated',
-            payload=json.dumps({'associated': True}),
-            hostname=settings.MQTT_BROKER_HOST,
-            port=settings.MQTT_BROKER_PORT,
-            retain=True,
-        )
-
+        device.associate_and_publish_associated_msg(request.user)
         return Response(
             {'device_id': device.device_id, 'device_name': device.device_name},
             status=status.HTTP_200_OK,

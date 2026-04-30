@@ -8,8 +8,8 @@ export default function AuthPage() {
     <div className="flex min-h-screen items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">Cubi</CardTitle>
-          <CardDescription>Speedcubing timer & tracker</CardDescription>
+          <img src="/static/assets/CubiLogo.png" alt="Cubi" className="mx-auto h-18" />
+          <CardDescription>A better speedcubing timer</CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="login">

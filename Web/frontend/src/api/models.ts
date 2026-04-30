@@ -1,6 +1,8 @@
 export type User = {
   id: number
   username: string
+  firstName: string
+  lastName: string
   email: string
 }
 
@@ -11,6 +13,8 @@ export type LoginRequest = {
 
 export type SignupRequest = {
   username: string
+  firstName: string
+  lastName: string
   email?: string
   password: string
 }
@@ -25,6 +29,11 @@ export type Solve = {
   scramble: string
   solveTime: number
   createdAt: string
+}
+
+export type Device = {
+  deviceId: string
+  deviceName: string
 }
 
 export type DashboardStats = {

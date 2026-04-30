@@ -35,7 +35,7 @@ class Device(models.Model):
             qos=2,
             retain=True,
             hostname="localhost",
-            port=1883
+            port=50001
         )
 
     def associate_and_publish_associated_msg(self, user: User) -> None:
@@ -50,7 +50,7 @@ class Device(models.Model):
             qos=2,
             retain=True,
             hostname="localhost",
-            port=1883
+            port=50001
         )
 
     def __str__(self):

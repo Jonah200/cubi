@@ -7,6 +7,8 @@ import { AxiosError } from 'axios'
 
 export default function SignupForm() {
   const [username, setUsername] = useState('')
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -20,7 +22,7 @@ export default function SignupForm() {
       setLocalError('Passwords do not match.')
       return
     }
-    signupMutation.mutate({ username, email, password })
+    signupMutation.mutate({ username, firstName, lastName, email, password })
   }
 
   const error = localError
@@ -38,6 +40,22 @@ export default function SignupForm() {
           id="signup-username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
+        />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="signup-first-name">First name</Label>
+        <Input
+          id="signup-first-name"
+          value={firstName}
+          onChange={(e) => setFirstName(e.target.value)}
+        />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="signup-last-name">Last name</Label>
+        <Input
+          id="signup-last-name"
+          value={lastName}
+          onChange={(e) => setLastName(e.target.value)}
         />
       </div>
       <div className="space-y-2">

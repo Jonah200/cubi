@@ -1,18 +1,15 @@
 import { Card, CardContent } from '@/components/ui/card'
-import { cn } from '@/lib/utils'
-
 type StatCardProps = {
   label: string
   value: string
-  variant?: 'primary' | 'white'
 }
 
-export default function StatCard({ label, value, variant = 'primary' }: StatCardProps) {
+export default function StatCard({ label, value }: StatCardProps) {
   return (
-    <Card className={cn('ring-0', variant === 'primary' ? 'bg-primary/15' : 'bg-white')}>
+    <Card className="ring-0 bg-white shadow-[0_0_2px_rgba(0,0,0,0.25)]">
       <CardContent className="flex flex-col py-4">
-        <span className="text-6xl font-bold tabular-nums">{value}</span>
-        <span className="text-base font-semibold uppercase tracking-wide text-muted-foreground">
+        <span className="font-heading text-6xl tabular-nums">{value}</span>
+        <span className="font-label text-xl uppercase tracking-[0.1em] text-muted-foreground">
           {label}
         </span>
       </CardContent>
