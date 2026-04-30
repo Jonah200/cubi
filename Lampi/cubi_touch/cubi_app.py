@@ -44,24 +44,6 @@ class Face(Widget):
         self.layout.pos = self.pos
         self.layout.size = self.size
 
-class StartScreen(Screen):
-
-    def on_enter(self):
-        scramble = App.get_running_app().scramble
-        if scramble == "":
-            App.get_running_app().scramble = generate_scramble()
-
-    def rescramble(self):
-        App.get_running_app().scramble = generate_scramble()
-
-    def go_to_inspection(self):
-        self.manager.get_screen("inspection").start_timer()
-        self.manager.current = "inspection"
-
-    def go_to_vis(self):
-        self.manager.get_screen("visualization").compute_scramble()
-        self.manager.current = "visualization"
-
 class VisScreen(Screen):
     scramble_arrs: Dict[str, List[List[str]]] = {}
 
@@ -69,6 +51,9 @@ class VisScreen(Screen):
         self.scramble_arrs = generate_scramble_vis(App.get_running_app().scramble)
 
     def on_enter(self):
+        scramble = App.get_running_app().scramble
+        if scramble == "":
+            App.get_running_app().scramble = generate_scramble()
         self.layout_grid()
 
     def go_to_inspection(self):
@@ -77,10 +62,10 @@ class VisScreen(Screen):
 
     def rescramble(self):
         App.get_running_app().scramble = generate_scramble()
-        self.compute_scramble()
         self.layout_grid()
 
     def layout_grid(self):
+        self.compute_scramble()
         self.ids.vis_grid.clear_widgets()
         self.ids.vis_grid.add_widget(Widget())
         self.ids.vis_grid.add_widget(Face(self.scramble_arrs['top']))
@@ -173,11 +158,11 @@ class SolveScreen(Screen):
     def _on_save(self, popup, scramble, elapsed):
         App.get_running_app().service.publish_solve(scramble, elapsed)
         popup.dismiss()
-        self.manager.current = "start"
+        self.manager.current = "visualization"
 
     def _on_discard(self, popup):
         popup.dismiss()
-        self.manager.current = "start"
+        self.manager.current = "visualization"
 
     def on_leave(self):
         self.time_text = "0.0"
@@ -194,7 +179,6 @@ class CubiApp(App):
         self.service.start()
 
         sm = ScreenManager(transition=NoTransition())
-        sm.add_widget(StartScreen(name="start"))
         sm.add_widget(VisScreen(name="visualization"))
         sm.add_widget(InspectionScreen(name="inspection"))
         sm.add_widget(SolveScreen(name="solve"))
