@@ -5,13 +5,11 @@ import time
 
 import paho.mqtt.client as mqtt
 
-BROKER_HOST = 'localhost'
-BROKER_PORT = 1883
-
+from cubi_common import *
 
 class CubiService:
     def __init__(self) -> None:
-        self.device_id = socket.gethostname()
+        self.device_id = get_device_id()
 
         self._client = mqtt.Client(
             mqtt.CallbackAPIVersion.VERSION2,
@@ -58,5 +56,6 @@ class CubiService:
                 self.on_association_required(code)
         elif payload.get('associated') is True:
             username = payload.get('username', '')
+            print(f"Username: {username}")
             if self.on_associated:
                 self.on_associated(username)

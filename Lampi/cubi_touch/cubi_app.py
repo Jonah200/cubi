@@ -1,62 +1,126 @@
 import time
+from typing import Dict, List
 
 from kivy.app import App
 from kivy.properties import StringProperty, NumericProperty, BooleanProperty
 from kivy.clock import Clock
-from kivy.uix.screenmanager import ScreenManager, Screen
+from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.gridlayout import GridLayout
 from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.popup import Popup
-from cubi_touch.cubi_util import generate_scramble
+from kivy.uix.widget import Widget
+from kivy.graphics import Color, Rectangle
+from cubi_touch.cubi_util import generate_scramble, generate_scramble_vis
 from cubi_service import CubiService
+from cubi_common import *
 
-class StartScreen(Screen):
-    scramble = StringProperty("")
+class ColoredBox(Widget):
+    def __init__(self, r, g, b, a=1, **kwargs):
+        super(ColoredBox, self).__init__(**kwargs)
+        with self.canvas:
+            Color(r, g ,b, a)
+            self.rect = Rectangle(pos=self.pos, size=self.size)
 
-    def on_pre_enter(self):
-        self.scramble = generate_scramble()
+        # Update rectangle when widget moves/resizes
+        self.bind(pos=self.update_rect, size=self.update_rect)
 
-    def rescramble(self):
-        self.scramble = generate_scramble()
+    def update_rect(self, *args):
+        self.rect.pos = self.pos
+        self.rect.size = self.size
+
+class Face(Widget):
+    def __init__(self, arr, **kwargs):
+        super(Face, self).__init__(**kwargs)
+        self.layout = GridLayout(cols=3,rows=3,spacing=[1])
+        for row in arr:
+            for color in row:
+                self.layout.add_widget(ColoredBox(*COLOR_MAP[color]))
+        self.add_widget(self.layout)
+        self.bind(pos=self.update_layout, size=self.update_layout)
+
+    def update_layout(self, *args):
+        self.layout.pos = self.pos
+        self.layout.size = self.size
+
+class VisScreen(Screen):
+    scramble_arrs: Dict[str, List[List[str]]] = {}
+
+    def compute_scramble(self):
+        self.scramble_arrs = generate_scramble_vis(App.get_running_app().scramble)
+
+    def on_enter(self):
+        scramble = App.get_running_app().scramble
+        if scramble == "":
+            App.get_running_app().scramble = generate_scramble()
+        self.layout_grid()
 
     def go_to_inspection(self):
         self.manager.get_screen("inspection").start_timer()
         self.manager.current = "inspection"
 
+    def rescramble(self):
+        App.get_running_app().scramble = generate_scramble()
+        self.layout_grid()
+
+    def layout_grid(self):
+        self.compute_scramble()
+        self.ids.vis_grid.clear_widgets()
+        self.ids.vis_grid.add_widget(Widget())
+        self.ids.vis_grid.add_widget(Face(self.scramble_arrs['top']))
+        self.ids.vis_grid.add_widget(Widget())
+        self.ids.vis_grid.add_widget(Widget())
+        self.ids.vis_grid.add_widget(Face(self.scramble_arrs['left']))
+        self.ids.vis_grid.add_widget(Face(self.scramble_arrs['front']))
+        self.ids.vis_grid.add_widget(Face(self.scramble_arrs['right']))
+        self.ids.vis_grid.add_widget(Face(self.scramble_arrs['back']))
+        self.ids.vis_grid.add_widget(Widget())
+        self.ids.vis_grid.add_widget(Face(self.scramble_arrs['bottom']))
+        self.ids.vis_grid.add_widget(Widget())
+        self.ids.vis_grid.add_widget(Widget())
+
 class InspectionScreen(Screen):
     time_left = NumericProperty(15)
-    show_button = BooleanProperty(False)
+    ready_set_go = StringProperty("")
 
     def start_timer(self):
         self.time_left = 15
-        self.show_button = False
         Clock.schedule_interval(self.countdown, 1)
 
     def countdown(self, dt):
         self.time_left -= 1
+        if self.time_left == 2:
+            self.ready_set_go = "READY\n"
+        if self.time_left == 1:
+            self.ready_set_go += "SET\n"
         if self.time_left <= 0:
-            self.show_button = True
-            return False
+            self.start_solve()
         
+    def on_touch_down(self, touch):
+        self.start_solve()
+
     def start_solve(self):
+        Clock.unschedule(self.countdown)
         self.manager.current = "solve"
+        self.time_left = 15
+        self.ready_set_go = ""
 
 class SolveScreen(Screen):
-    time_text = StringProperty("Tap to Start")
+    time_text = StringProperty("0.0")
     running = False
     start_time = 0
 
+    def on_enter(self):
+        self.running = True
+        self.start_time = time.time()
+        Clock.schedule_interval(self.update_time, 0.01)
+
     def on_touch_down(self, touch):
-        if not self.running:
-            self.running = True
-            self.start_time = time.time()
-            Clock.schedule_interval(self.update_time, 0.01)
-        else:
-            self.running = False
-            Clock.unschedule(self.update_time)
-            elapsed = time.time() - self.start_time
-            self.show_result(elapsed)
+        self.running = False
+        Clock.unschedule(self.update_time)
+        elapsed = time.time() - self.start_time
+        self.show_result(elapsed)
         return True
     
     def update_time(self, dt):
@@ -64,7 +128,7 @@ class SolveScreen(Screen):
         self.time_text = f"{elapsed:.2f}"
 
     def show_result(self, elapsed):
-        scramble = self.manager.get_screen("start").scramble
+        scramble = App.get_running_app().scramble
 
         result_label = Label(
             text=f"{scramble}\n\nTime: {elapsed:.2f}",
@@ -73,8 +137,8 @@ class SolveScreen(Screen):
         )
         result_label.bind(size=lambda lbl, _: setattr(lbl, 'text_size', lbl.size))
 
-        save_btn = Button(text="Save", size_hint_y=0.3)
-        discard_btn = Button(text="Discard", size_hint_y=0.3)
+        save_btn = Button(text="Save", size_hint_y=1)
+        discard_btn = Button(text="Discard", size_hint_y=1)
 
         btn_row = BoxLayout(orientation="horizontal", size_hint_y=0.3, spacing=10)
         btn_row.add_widget(save_btn)
@@ -84,7 +148,7 @@ class SolveScreen(Screen):
         content.add_widget(result_label)
         content.add_widget(btn_row)
 
-        popup = Popup(title="Result", content=content, size_hint=(0.8, 0.6), auto_dismiss=False)
+        popup = Popup(title="Result", content=content, size_hint=(0.9, 0.8), auto_dismiss=False)
 
         save_btn.bind(on_press=lambda *_: self._on_save(popup, scramble, elapsed))
         discard_btn.bind(on_press=lambda *_: self._on_discard(popup))
@@ -94,15 +158,19 @@ class SolveScreen(Screen):
     def _on_save(self, popup, scramble, elapsed):
         App.get_running_app().service.publish_solve(scramble, elapsed)
         popup.dismiss()
-        self.time_text = "Tap to Start"
-        self.manager.current = "start"
+        self.manager.current = "visualization"
 
     def _on_discard(self, popup):
         popup.dismiss()
-        self.time_text = "Tap to Start"
-        self.manager.current = "start"
+        self.manager.current = "visualization"
+
+    def on_leave(self):
+        self.time_text = "0.0"
 
 class CubiApp(App):
+    scramble = StringProperty("")
+    username = StringProperty("")
+
     def build(self):
         self.service = CubiService()
         self._association_popup = None
@@ -111,8 +179,8 @@ class CubiApp(App):
         self.service.on_associated = self._on_associated
         self.service.start()
 
-        sm = ScreenManager()
-        sm.add_widget(StartScreen(name="start"))
+        sm = ScreenManager(transition=NoTransition())
+        sm.add_widget(VisScreen(name="visualization"))
         sm.add_widget(InspectionScreen(name="inspection"))
         sm.add_widget(SolveScreen(name="solve"))
         return sm
@@ -148,6 +216,7 @@ class CubiApp(App):
         self._association_popup.open()
 
     def _dismiss_association_popup(self, username):
+        self.username = username
         if self._association_popup is None:
             return
         self._association_popup.dismiss()

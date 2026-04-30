@@ -1,48 +1,54 @@
 #:kivy 1.9
 
-<StartScreen>:
+<VisScreen>:
     BoxLayout:
         orientation: "vertical"
-        padding: 20
-        spacing: 20
-
         Label:
-            text: root.scramble
+            text: f"Welcome {app.username}!"
             text_size: self.width, None
-            size_hint_y: None
-            height: self.texture_size[1]
-
-        Button: 
-            text: "Generate New Scramble"
-            size_hint_y: 0.2
-            on_press: root.rescramble()
-            
+            size_hint_y: 0.1
+            halign: "center"
+        Label:
+            text: app.scramble
+            text_size: self.width, None
+            halign: "center"
+            size_hint_y: 0.1
         Button:
+            size_hint_y: 0.15
+            text: "Generate New Scramble"
+            on_press: root.rescramble()
+        Button:
+            size_hint_y: 0.15
             text: "Start Inspection"
-            size_hint_y: 0.3
             on_press: root.go_to_inspection()
-
+        GridLayout:
+            size_hint_y: 0.5
+            id: vis_grid
+            spacing: [4]
+            cols: 4
+            rows: 3
 
 <InspectionScreen>:
     BoxLayout:
         orientation: "vertical"
         padding: 20
         spacing: 20
-
         Label:
             text: str(root.time_left)
             font_size: 48
-
-        Button:
-            text: "Start Solve"
-            opacity: 1 if root.show_button else 0
-            disabled: not root.show_button
-            size_hint_y: 0.3
-            on_press: root.start_solve()
+        Label:
+            text: root.ready_set_go
+            halign: 'center'
+            font_size: 40
 
 
 <SolveScreen>:
     BoxLayout:
+        orientation: 'vertical'
+        Label:
+            text: "SOLVE!"
+            halign: 'center'
+            font_size: 40
         Label:
             text: root.time_text
             font_size: 48
