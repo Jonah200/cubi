@@ -31,6 +31,11 @@ export type Solve = {
   createdAt: string
 }
 
+export type Device = {
+  deviceId: string
+  deviceName: string
+}
+
 export type DashboardStats = {
   mostRecent: number | null
   averageOf5: number | null

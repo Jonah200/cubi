@@ -1,5 +1,5 @@
 import { api } from './api-client'
-import type { AuthResponse, DashboardStats, LoginRequest, SignupRequest, Solve, User } from './models'
+import type { AuthResponse, DashboardStats, Device, LoginRequest, SignupRequest, Solve, User } from './models'
 
 export async function fetchCsrf(): Promise<void> {
   await api.get('/auth/csrf/')
@@ -37,5 +37,10 @@ export async function getSolves(): Promise<Solve[]> {
 
 export async function getStats(): Promise<DashboardStats> {
   const res = await api.get<DashboardStats>('/stats/')
+  return res.data
+}
+
+export async function associateDevice(code: string): Promise<Device> {
+  const res = await api.post<Device>('/devices/associate/', { code })
   return res.data
 }
