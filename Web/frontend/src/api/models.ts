@@ -26,6 +26,7 @@ export type AuthResponse = {
 }
 
 export type Solve = {
+  id: string
   solveNo: number
   scramble: string
   solveTime: number

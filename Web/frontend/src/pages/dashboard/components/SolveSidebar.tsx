@@ -23,7 +23,7 @@ export default function SolveSidebar({ solves, user }: SolveSidebarProps) {
       <div className="flex-1 overflow-y-auto">
         {solves.map((solve) => (
           <SolveHistoryItem
-            key={solve.solveNo}
+            key={solve.id}
             solveNo={solve.solveNo}
             solveTime={solve.solveTime}
             onClick={() => setSelectedSolve(solve)}

@@ -58,11 +58,11 @@ class Device(models.Model):
 
 
 class Solve(models.Model):
-    solve_no = models.AutoField(primary_key=True)
+    solve_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='solves')
     scramble = models.TextField()
     solve_time = models.DurationField()
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f'Solve #{self.solve_no} — {self.solve_time}'
+        return f'Solve {self.solve_id} — {self.solve_time}'

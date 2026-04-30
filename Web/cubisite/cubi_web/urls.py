@@ -23,7 +23,7 @@ urlpatterns = [
     path('auth/me/', MeView.as_view(), name='me'),
     path('devices/associate/', AssociateDeviceView.as_view(), name='associate-device'),
     path('solves/', SolvesView.as_view(), name='solves'),
-    path('solves/<int:pk>/', SolveDetailView.as_view(), name='solve-detail'),
+    path('solves/<uuid:pk>/', SolveDetailView.as_view(), name='solve-detail'),
     path('stats/', StatsView.as_view(), name='stats'),
     path('events/<channel>/', include(django_eventstream.urls)),
     path('internal/notify-solve/', NotifySolveView.as_view(), name='notify-solve'),

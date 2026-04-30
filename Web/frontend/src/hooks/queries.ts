@@ -49,7 +49,7 @@ export function useAssociateDevice() {
 export function useDeleteSolve() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (solveNo: number) => deleteSolve(solveNo),
+    mutationFn: (id: string) => deleteSolve(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.solves })
       queryClient.invalidateQueries({ queryKey: queryKeys.stats })

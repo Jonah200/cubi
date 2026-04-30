@@ -40,8 +40,8 @@ export async function getStats(): Promise<DashboardStats> {
   return res.data
 }
 
-export async function deleteSolve(solveNo: number): Promise<void> {
-  await api.delete(`/solves/${solveNo}/`)
+export async function deleteSolve(id: string): Promise<void> {
+  await api.delete(`/solves/${id}/`)
 }
 
 export async function associateDevice(code: string): Promise<Device> {

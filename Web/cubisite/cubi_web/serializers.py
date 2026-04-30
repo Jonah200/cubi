@@ -6,13 +6,14 @@ from .models import Device, Solve, User
 
 
 class SolveSerializer(serializers.ModelSerializer):
+    id = serializers.UUIDField(source='solve_id', read_only=True)
     solveNo = serializers.SerializerMethodField()
     solveTime = serializers.SerializerMethodField()
     createdAt = serializers.DateTimeField(source='created_at')
 
     class Meta:
         model = Solve
-        fields = ['solveNo', 'solveTime', 'createdAt', 'scramble']
+        fields = ['id', 'solveNo', 'solveTime', 'createdAt', 'scramble']
 
     def get_solveNo(self, obj):
         return Solve.objects.filter(

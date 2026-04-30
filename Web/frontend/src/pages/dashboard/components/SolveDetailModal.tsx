@@ -24,7 +24,7 @@ export default function SolveDetailModal({ solve, open, onOpenChange }: SolveDet
   if (!solve) return null
 
   function handleDelete() {
-    deleteSolve.mutate(solve!.solveNo, {
+    deleteSolve.mutate(solve!.id, {
       onSuccess: () => {
         setConfirmOpen(false)
         onOpenChange(false)
