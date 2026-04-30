@@ -8,8 +8,8 @@ type CurrentAveragesProps = {
 function AverageCard({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex flex-col px-4">
-      <span className="text-6xl font-bold tabular-nums">{value}</span>
-      <span className="text-base font-semibold uppercase tracking-wide text-muted-foreground">
+      <span className="font-heading text-6xl tabular-nums">{value}</span>
+      <span className="font-label text-xl uppercase tracking-[0.1em] text-muted-foreground">
         {label}
       </span>
     </div>

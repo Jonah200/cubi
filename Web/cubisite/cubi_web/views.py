@@ -41,6 +41,8 @@ class SignupView(APIView):
         serializer.is_valid(raise_exception=True)
         user = User.objects.create_user(
             username=serializer.validated_data['username'],
+            first_name=serializer.validated_data['first_name'],
+            last_name=serializer.validated_data['last_name'],
             email=serializer.validated_data.get('email', ''),
             password=serializer.validated_data['password'],
         )
@@ -77,6 +79,8 @@ class MeView(APIView):
         return Response({
             'id': request.user.id,
             'username': request.user.username,
+            'firstName': request.user.first_name,
+            'lastName': request.user.last_name,
             'email': request.user.email,
         })
 

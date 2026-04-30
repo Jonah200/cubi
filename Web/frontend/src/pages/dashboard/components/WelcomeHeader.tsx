@@ -1,7 +1,7 @@
 type WelcomeHeaderProps = {
-  username: string
+  firstName: string
 }
 
-export default function WelcomeHeader({ username }: WelcomeHeaderProps) {
-  return <h1 className="text-3xl font-bold">Welcome back, {username}</h1>
+export default function WelcomeHeader({ firstName }: WelcomeHeaderProps) {
+  return <h1 className="text-3xl">Welcome back, {firstName}</h1>
 }

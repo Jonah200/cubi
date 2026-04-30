@@ -18,9 +18,9 @@ type ModalProps = {
 export default function Modal({ open, onOpenChange, title, description, children }: ModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle className="font-bold">{title}</DialogTitle>
+          <DialogTitle className="font-sans font-bold">{title}</DialogTitle>
           {description && <DialogDescription>{description}</DialogDescription>}
         </DialogHeader>
         {children}

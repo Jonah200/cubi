@@ -20,6 +20,8 @@ class SolveSerializer(serializers.ModelSerializer):
 
 class SignupSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=150)
+    first_name = serializers.CharField(max_length=150)
+    last_name = serializers.CharField(max_length=150)
     email = serializers.EmailField(required=False, default='')
     password = serializers.CharField(write_only=True)
 

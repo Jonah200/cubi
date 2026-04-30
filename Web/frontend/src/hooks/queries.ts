@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { getMe, getSolves, getStats, login, logout, signup } from '@/api/services'
+import { associateDevice, getMe, getSolves, getStats, login, logout, signup } from '@/api/services'
 import type { DashboardStats, LoginRequest, SignupRequest, Solve } from '@/api/models'
 import { queryKeys } from './query-keys'
 
@@ -33,6 +33,16 @@ export function useLogout() {
   return useMutation({
     mutationFn: logout,
     onSuccess: () => queryClient.setQueryData(queryKeys.me, null),
+  })
+}
+
+export function useAssociateDevice() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (code: string) => associateDevice(code),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.me })
+    },
   })
 }
 

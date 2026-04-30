@@ -24,6 +24,10 @@ export default function ProfileModal({ user, open, onOpenChange }: ProfileModalP
     <Modal open={open} onOpenChange={onOpenChange} title="My Profile">
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
+          <p className="text-sm text-muted-foreground">Name</p>
+          <p className="font-medium">{user.firstName} {user.lastName}</p>
+        </div>
+        <div className="flex flex-col gap-1">
           <p className="text-sm text-muted-foreground">Username</p>
           <p className="font-medium">{user.username}</p>
         </div>
