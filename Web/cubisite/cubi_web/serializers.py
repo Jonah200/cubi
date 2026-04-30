@@ -51,9 +51,10 @@ class AssociateDeviceSerializer(serializers.Serializer):
     code = serializers.CharField(max_length=32)
 
     def validate_code(self, value):
+        upper = value.upper()
         try:
-            device = Device.objects.get(association_code=value.upper())
-        except Device.DoesNotExist:
+            device = Device.objects.get(association_code__startswith=upper)
+        except (Device.DoesNotExist, Device.MultipleObjectsReturned):
             raise serializers.ValidationError('Invalid association code.')
         self._device = device
         return value
