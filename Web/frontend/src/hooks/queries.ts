@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { associateDevice, getMe, getSolves, getStats, login, logout, signup } from '@/api/services'
+import { associateDevice, deleteSolve, getMe, getSolves, getStats, login, logout, signup } from '@/api/services'
 import type { DashboardStats, LoginRequest, SignupRequest, Solve } from '@/api/models'
 import { queryKeys } from './query-keys'
 
@@ -42,6 +42,17 @@ export function useAssociateDevice() {
     mutationFn: (code: string) => associateDevice(code),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.me })
+    },
+  })
+}
+
+export function useDeleteSolve() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (solveNo: number) => deleteSolve(solveNo),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.solves })
+      queryClient.invalidateQueries({ queryKey: queryKeys.stats })
     },
   })
 }

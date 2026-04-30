@@ -104,6 +104,18 @@ class SolvesView(APIView):
         return Response(serializer.data)
 
 
+class SolveDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, pk):
+        try:
+            solve = Solve.objects.get(pk=pk, user=request.user)
+        except Solve.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        solve.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 class StatsView(APIView):
     permission_classes = [IsAuthenticated]
 
