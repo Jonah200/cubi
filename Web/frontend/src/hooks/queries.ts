@@ -60,11 +60,13 @@ export function useStats() {
   })
 }
 
-export function useSolveStream() {
+export function useSolveStream(userId: number | undefined) {
   const queryClient = useQueryClient()
 
   useEffect(() => {
-    const es = new EventSource('/api/solves/stream/')
+    if (!userId) return
+
+    const es = new EventSource(`/api/events/user-${userId}/`)
 
     es.addEventListener('solve', (e) => {
       const solve: Solve = JSON.parse(e.data)
@@ -77,5 +79,5 @@ export function useSolveStream() {
     })
 
     return () => es.close()
-  }, [queryClient])
+  }, [queryClient, userId])
 }

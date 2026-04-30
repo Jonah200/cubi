@@ -13,7 +13,7 @@ export default function DashboardPage() {
   const { data: solves = [] } = useSolves()
   const { data: stats } = useStats()
 
-  useSolveStream()
+  useSolveStream(user.id)
 
   return (
     <div className="grid h-screen grid-cols-[240px_1fr]">

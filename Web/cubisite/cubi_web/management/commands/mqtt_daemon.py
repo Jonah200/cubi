@@ -7,7 +7,10 @@ import paho.mqtt.client as mqtt
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
+from django_eventstream import send_event
+
 from cubi_web.models import Device, Solve, User
+from cubi_web.serializers import SolveSerializer
 
 MQTT_BROKER_RE_PATTERN: str = (r'\$sys\/broker\/connection\/'
                                r'(?P<device_id>[0-9a-f]*)_cubi_broker/state')
@@ -70,6 +73,12 @@ class Command(BaseCommand):
             solve_time=timedelta(seconds=float(solve_time)),
         )
         self.stdout.write(f'Saved {solve}')
+
+        send_event(
+            f'user-{device.owner.pk}',
+            'solve',
+            SolveSerializer(solve).data,
+        )
 
     def _handle_device_connection(self, client, userdata, msg):
         # Topic: $SYS/broker/connection/<device_id>/state

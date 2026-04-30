@@ -1,4 +1,6 @@
-from django.urls import path
+from django.urls import include, path
+
+import django_eventstream
 
 from .views import (
     AssociateDeviceView,
@@ -7,7 +9,6 @@ from .views import (
     LogoutView,
     MeView,
     SignupView,
-    SolvesStreamView,
     SolvesView,
     StatsView,
 )
@@ -21,5 +22,5 @@ urlpatterns = [
     path('devices/associate/', AssociateDeviceView.as_view(), name='associate-device'),
     path('solves/', SolvesView.as_view(), name='solves'),
     path('stats/', StatsView.as_view(), name='stats'),
-    path('solves/stream/', SolvesStreamView.as_view(), name='solves-stream'),
+    path('events/<channel>/', include(django_eventstream.urls)),
 ]

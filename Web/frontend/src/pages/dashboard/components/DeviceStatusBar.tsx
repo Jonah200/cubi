@@ -2,17 +2,19 @@ import { useRef, useState } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import Modal from '@/components/Modal'
-import { useAssociateDevice } from '@/hooks/queries'
+import { useAssociateDevice, useMe } from '@/hooks/queries'
 
 const CODE_LENGTH = 6
 
 export default function DeviceStatusBar() {
+  const { data: user } = useMe()
   const [open, setOpen] = useState(false)
   const [code, setCode] = useState(Array(CODE_LENGTH).fill(''))
   const [error, setError] = useState<string | null>(null)
-  const [connected, setConnected] = useState(false)
   const inputsRef = useRef<(HTMLInputElement | null)[]>([])
   const associate = useAssociateDevice()
+
+  const connected = user?.hasDevice ?? false
 
   function resetState() {
     setCode(Array(CODE_LENGTH).fill(''))
@@ -65,7 +67,6 @@ export default function DeviceStatusBar() {
 
     associate.mutate(fullCode, {
       onSuccess: () => {
-        setConnected(true)
         setOpen(false)
       },
       onError: () => {

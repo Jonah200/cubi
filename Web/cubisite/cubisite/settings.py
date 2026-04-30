@@ -34,6 +34,7 @@ CSRF_TRUSTED_ORIGINS = ['http://localhost:5173', 'http://localhost:8000']
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -41,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'django_eventstream',
     'cubi_web',
 ]
 
@@ -88,6 +90,9 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'cubisite.wsgi.application'
+ASGI_APPLICATION = 'cubisite.asgi.application'
+
+EVENTSTREAM_CHANNELMANAGER_CLASS = 'cubi_web.channelmanager.UserChannelManager'
 
 
 # Database

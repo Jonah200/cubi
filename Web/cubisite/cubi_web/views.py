@@ -1,18 +1,8 @@
-import json
-import queue
-import threading
-import time
-
-import paho.mqtt.client as mqtt
-import paho.mqtt.publish as mqtt_publish
-from django.conf import settings
 from django.contrib.auth import login, logout
-from django.http import StreamingHttpResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.renderers import BaseRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -82,6 +72,7 @@ class MeView(APIView):
             'firstName': request.user.first_name,
             'lastName': request.user.last_name,
             'email': request.user.email,
+            'hasDevice': request.user.devices.exists(),
         })
 
 
@@ -145,67 +136,3 @@ class StatsView(APIView):
         })
 
 
-class ServerSentEventRenderer(BaseRenderer):
-    media_type = 'text/event-stream'
-    format = 'txt'
-
-    def render(self, data, accepted_media_type=None, renderer_context=None):
-        return data
-
-
-class SolvesStreamView(APIView):
-    permission_classes = [IsAuthenticated]
-    renderer_classes = [ServerSentEventRenderer]
-
-    def get(self, request):
-        user = request.user
-        device_ids = set(
-            user.devices.values_list('device_id', flat=True)
-        )
-
-        q = queue.Queue()
-
-        def on_connect(client, userdata, flags, reason_code, properties):
-            client.subscribe('cubi/solve')
-
-        def on_message(client, userdata, msg):
-            try:
-                data = json.loads(msg.payload.decode())
-            except (json.JSONDecodeError, UnicodeDecodeError):
-                return
-            if data.get('device_id') in device_ids:
-                q.put(data)
-
-        mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
-        mqtt_client.on_connect = on_connect
-        mqtt_client.on_message = on_message
-        mqtt_client.connect(settings.MQTT_BROKER_HOST, settings.MQTT_BROKER_PORT)
-        mqtt_client.loop_start()
-
-        def event_stream():
-            try:
-                while True:
-                    try:
-                        data = q.get(timeout=15)
-                    except queue.Empty:
-                        yield ': ping\n\n'
-                        continue
-
-                    solve = (
-                        Solve.objects.filter(user=user)
-                        .order_by('-created_at')
-                        .first()
-                    )
-                    if solve:
-                        serialized = SolveSerializer(solve).data
-                        yield f'event: solve\ndata: {json.dumps(serialized)}\n\n'
-            finally:
-                mqtt_client.loop_stop()
-                mqtt_client.disconnect()
-
-        response = StreamingHttpResponse(
-            event_stream(), content_type='text/event-stream'
-        )
-        response['Cache-Control'] = 'no-cache'
-        response['X-Accel-Buffering'] = 'no'
-        return response
