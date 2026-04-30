@@ -169,6 +169,7 @@ class SolveScreen(Screen):
 
 class CubiApp(App):
     scramble = StringProperty("")
+    username = StringProperty("")
 
     def build(self):
         self.service = CubiService()
@@ -188,12 +189,10 @@ class CubiApp(App):
 
     def _on_association_required(self, code):
         # Schedule on main thread; capture code in default arg
-        #Clock.schedule_once(lambda dt, c=code: self._show_association_popup(c))
-        pass
+        Clock.schedule_once(lambda dt, c=code: self._show_association_popup(c))
 
     def _on_associated(self, username):
-        #Clock.schedule_once(lambda dt, u=username: self._dismiss_association_popup(u))
-        pass
+        Clock.schedule_once(lambda dt, u=username: self._dismiss_association_popup(u))
 
     def _show_association_popup(self, code):
         if self._association_popup is not None:
@@ -217,6 +216,7 @@ class CubiApp(App):
         self._association_popup.open()
 
     def _dismiss_association_popup(self, username):
+        self.username = username
         if self._association_popup is None:
             return
         self._association_popup.dismiss()

@@ -4,10 +4,15 @@
     BoxLayout:
         orientation: "vertical"
         Label:
+            text: f"Welcome {app.username}!"
+            text_size: self.width, None
+            size_hint_y: 0.1
+            halign: "center"
+        Label:
             text: app.scramble
             text_size: self.width, None
             halign: "center"
-            size_hint_y: 0.2
+            size_hint_y: 0.1
         Button:
             size_hint_y: 0.15
             text: "Generate New Scramble"

@@ -56,5 +56,6 @@ class CubiService:
                 self.on_association_required(code)
         elif payload.get('associated') is True:
             username = payload.get('username', '')
+            print(f"Username: {username}")
             if self.on_associated:
                 self.on_associated(username)
