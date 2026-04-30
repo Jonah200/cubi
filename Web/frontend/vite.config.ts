@@ -16,6 +16,11 @@ export default defineConfig({
     },
   server: {
     proxy: {
+      '/api/events/': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        headers: { 'X-Accel-Buffering': 'no' },
+      },
       '/api': 'http://localhost:8000',
     },
   },

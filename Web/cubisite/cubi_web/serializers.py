@@ -6,13 +6,18 @@ from .models import Device, Solve, User
 
 
 class SolveSerializer(serializers.ModelSerializer):
-    solveNo = serializers.IntegerField(source='solve_no')
+    solveNo = serializers.SerializerMethodField()
     solveTime = serializers.SerializerMethodField()
     createdAt = serializers.DateTimeField(source='created_at')
 
     class Meta:
         model = Solve
         fields = ['solveNo', 'solveTime', 'createdAt', 'scramble']
+
+    def get_solveNo(self, obj):
+        return Solve.objects.filter(
+            user=obj.user, created_at__lte=obj.created_at
+        ).count()
 
     def get_solveTime(self, obj):
         return obj.solve_time.total_seconds()

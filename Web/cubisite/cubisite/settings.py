@@ -93,6 +93,13 @@ WSGI_APPLICATION = 'cubisite.wsgi.application'
 ASGI_APPLICATION = 'cubisite.asgi.application'
 
 EVENTSTREAM_CHANNELMANAGER_CLASS = 'cubi_web.channelmanager.UserChannelManager'
+EVENTSTREAM_STORAGE_CLASS = 'django_eventstream.storage.DjangoModelStorage'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
+}
 
 
 # Database
