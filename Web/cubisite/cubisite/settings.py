@@ -156,6 +156,7 @@ STATICFILES_DIRS = [
 ]
 
 DEFAULT_USER = "parked_device_user"
+INTERNAL_API_SECRET = os.environ.get('INTERNAL_API_SECRET', 'cubi-local-dev-secret')
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 

@@ -1,6 +1,10 @@
+from django.conf import settings
 from django.contrib.auth import login, logout
+from django.http import JsonResponse
 from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views import View
+from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
+from django_eventstream import send_event
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -134,5 +138,36 @@ class StatsView(APIView):
             'bestAo10': best_ao(times, 10),
             'bestAo50': best_ao(times, 50),
         })
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class NotifySolveView(View):
+    """Internal endpoint called by mqtt_daemon to push SSE events.
+    Restricted to localhost and authenticated via shared secret."""
+
+    def post(self, request):
+        remote = request.META.get('REMOTE_ADDR', '')
+        if remote not in ('127.0.0.1', '::1'):
+            return JsonResponse({'error': 'forbidden'}, status=403)
+
+        token = request.headers.get('Authorization', '')
+        if token != f'Bearer {settings.INTERNAL_API_SECRET}':
+            return JsonResponse({'error': 'unauthorized'}, status=401)
+
+        solve_pk = request.POST.get('solve_pk')
+        if not solve_pk:
+            return JsonResponse({'error': 'missing solve_pk'}, status=400)
+
+        try:
+            solve = Solve.objects.select_related('user').get(pk=solve_pk)
+        except Solve.DoesNotExist:
+            return JsonResponse({'error': 'not found'}, status=404)
+
+        send_event(
+            f'user-{solve.user.pk}',
+            'solve',
+            SolveSerializer(solve).data,
+        )
+        return JsonResponse({'ok': True})
 
 

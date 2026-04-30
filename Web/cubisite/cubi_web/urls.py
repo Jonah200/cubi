@@ -8,6 +8,7 @@ from .views import (
     LoginView,
     LogoutView,
     MeView,
+    NotifySolveView,
     SignupView,
     SolvesView,
     StatsView,
@@ -23,4 +24,5 @@ urlpatterns = [
     path('solves/', SolvesView.as_view(), name='solves'),
     path('stats/', StatsView.as_view(), name='stats'),
     path('events/<channel>/', include(django_eventstream.urls)),
+    path('internal/notify-solve/', NotifySolveView.as_view(), name='notify-solve'),
 ]

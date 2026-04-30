@@ -2,15 +2,14 @@ import json
 import re
 import uuid
 from datetime import timedelta
+from urllib.request import Request, urlopen
+from urllib.parse import urlencode
 
 import paho.mqtt.client as mqtt
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
-from django_eventstream import send_event
-
 from cubi_web.models import Device, Solve, User
-from cubi_web.serializers import SolveSerializer
 
 MQTT_BROKER_RE_PATTERN: str = (r'\$sys\/broker\/connection\/'
                                r'(?P<device_id>[0-9a-f]*)_cubi_broker/state')
@@ -74,11 +73,16 @@ class Command(BaseCommand):
         )
         self.stdout.write(f'Saved {solve}')
 
-        send_event(
-            f'user-{device.owner.pk}',
-            'solve',
-            SolveSerializer(solve).data,
-        )
+        try:
+            data = urlencode({'solve_pk': solve.pk}).encode()
+            req = Request(
+                'http://127.0.0.1:8000/api/internal/notify-solve/',
+                data=data,
+                headers={'Authorization': f'Bearer {settings.INTERNAL_API_SECRET}'},
+            )
+            urlopen(req, timeout=5)
+        except Exception as e:
+            self.stderr.write(f'Failed to notify web server: {e}')
 
     def _handle_device_connection(self, client, userdata, msg):
         # Topic: $SYS/broker/connection/<device_id>/state
